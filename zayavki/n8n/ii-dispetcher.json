@@ -16,12 +16,13 @@
         0,
         0
       ],
-      "webhookId": "zayavka"
+      "webhookId": "zayavka",
+      "id": "ff28c129-d28a-4a0a-ab15-ad9872761a9d"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "http://ollama:11434/api/chat",
+        "url": "http://host.docker.internal:11434/api/chat",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ {\n  model: 'qwen2.5:3b',\n  stream: false,\n  format: {\n    type: 'object',\n    properties: {\n      category: { type: 'string', enum: ['Компьютер', 'Проектор', 'Принтер', 'Интернет'] },\n      urgent: { type: 'boolean' },\n      summary: { type: 'string' }\n    },\n    required: ['category', 'urgent', 'summary']\n  },\n  messages: [\n    { role: 'system', content: 'Ты диспетчер ИТ-отдела колледжа. По заявке определи категорию (Компьютер, Проектор, Принтер, Интернет), срочность и напиши краткое описание до 12 слов. Срочно, если срывается занятие или экзамен, пропал интернет у целого кабинета или есть риск для безопасности. Отвечай только JSON.' },\n    { role: 'user', content: 'Что случилось: ' + $json.body.title + '\\nКабинет: ' + $json.body.room + '\\nКатегория от автора: ' + $json.body.category + '\\nПодробности: ' + $json.body.details }\n  ]\n} }}",
@@ -35,7 +36,8 @@
       "position": [
         220,
         0
-      ]
+      ],
+      "id": "2f8f4e87-a330-4cf2-aeed-0f2a029d1b3c"
     },
     {
       "parameters": {
@@ -87,7 +89,8 @@
       "position": [
         440,
         0
-      ]
+      ],
+      "id": "3194e396-0976-4e47-8fcb-220ae7a3451d"
     },
     {
       "parameters": {
@@ -104,12 +107,13 @@
       "position": [
         660,
         0
-      ]
+      ],
+      "id": "170ffe6e-1772-47a6-a5ce-2c11ed0e56c9"
     },
     {
       "parameters": {
         "chatId": "",
-        "text": "={{ $('Ответ модели').item.json.urgent ? '🔴 СРОЧНО\\n' : '' }}Заявка: {{ $('Ответ модели').item.json.title }}\nКабинет: {{ $('Ответ модели').item.json.room }} · {{ $('Ответ модели').item.json.category }}\n{{ $('Ответ модели').item.json.summary }}",
+        "text": "={{ $('Ответ модели').item.json.urgent ? '🔴 СРОЧНО\\n' : '' }}Заявка: {{ String($('Ответ модели').item.json.title).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;') }}\nКабинет: {{ String($('Ответ модели').item.json.room).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;') }} · {{ $('Ответ модели').item.json.category }}\n{{ String($('Ответ модели').item.json.summary).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;') }}",
         "replyMarkup": "inlineKeyboard",
         "inlineKeyboard": {
           "rows": [
@@ -128,7 +132,8 @@
           ]
         },
         "additionalFields": {
-          "appendAttribution": false
+          "appendAttribution": false,
+          "parse_mode": "HTML"
         }
       },
       "name": "Telegram",
@@ -137,7 +142,9 @@
       "position": [
         880,
         0
-      ]
+      ],
+      "id": "6b5656fd-0ed9-45bb-aac4-61369f578d8b",
+      "webhookId": "ccad4438-cfb1-4a94-b0be-0dd392ca16a1"
     }
   ],
   "connections": {
@@ -185,5 +192,6 @@
         ]
       ]
     }
-  }
+  },
+  "settings": null
 }

@@ -18,7 +18,8 @@
       "position": [
         0,
         0
-      ]
+      ],
+      "id": "cf216d59-f5e7-437f-8ad2-ad6be37d8854"
     },
     {
       "parameters": {
@@ -33,6 +34,10 @@
             {
               "name": "allowed_updates",
               "value": "[\"callback_query\"]"
+            },
+            {
+              "name": "limit",
+              "value": "1"
             }
           ]
         },
@@ -44,7 +49,8 @@
       "position": [
         220,
         0
-      ]
+      ],
+      "id": "5f7e4e08-bf12-42ff-b351-37c516bea959"
     },
     {
       "parameters": {
@@ -76,7 +82,8 @@
       "position": [
         440,
         0
-      ]
+      ],
+      "id": "d43843fe-4ff2-463e-8f52-bada3ec4c00b"
     },
     {
       "parameters": {
@@ -86,11 +93,19 @@
           "parameters": [
             {
               "name": "offset",
-              "value": "={{ $json.result[$json.result.length - 1].update_id + 1 }}"
+              "value": "={{ $('По одному').item.json.update_id + 1 }}"
             },
             {
               "name": "timeout",
               "value": "0"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            },
+            {
+              "name": "allowed_updates",
+              "value": "[\"callback_query\"]"
             }
           ]
         },
@@ -100,9 +115,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        660,
-        -140
-      ]
+        2640,
+        200
+      ],
+      "id": "ecb315cc-bddc-4f41-a0db-6d8ad0222ecb"
     },
     {
       "parameters": {
@@ -115,7 +131,8 @@
       "position": [
         660,
         100
-      ]
+      ],
+      "id": "d23ab794-e5b8-4ecd-8b43-01cceba0810e"
     },
     {
       "parameters": {
@@ -124,7 +141,7 @@
             {
               "id": "b1",
               "name": "id",
-              "value": "={{ $json.callback_query.data.replace('take:', '') }}",
+              "value": "={{ $json.callback_query.data.slice(5) }}",
               "type": "string"
             },
             {
@@ -165,14 +182,15 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        880,
+        1100,
         100
-      ]
+      ],
+      "id": "cd0caddb-4cf6-461e-9f40-f82741f98e59"
     },
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://pocketbase:8090/api/collections/it_requests/records/{{ $json.id }}",
+        "url": "=http://pocketbase:8090/api/collections/it_requests/records/{{ $('Кто и что нажал').item.json.id }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ { status: 'В работе' } }}",
@@ -182,9 +200,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1100,
+        1760,
         100
-      ]
+      ],
+      "id": "c2d6f2f9-e0fd-4b43-85e4-2f3f7e78d093"
     },
     {
       "parameters": {
@@ -198,10 +217,12 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1320,
+        1980,
         100
       ],
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "id": "22da4199-4901-4122-be1f-8214bdea919e",
+      "webhookId": "1d16aa5e-af01-4fcc-b2ea-23670b45f67e"
     },
     {
       "parameters": {
@@ -215,10 +236,125 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
+        2200,
+        100
+      ],
+      "onError": "continueRegularOutput",
+      "id": "176da16b-08e7-47b8-a7de-64038f982fa4",
+      "webhookId": "6454b7b8-fe17-45d5-b141-7db89c74a796"
+    },
+    {
+      "name": "Кнопка заявки?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "valid",
+              "leftValue": "={{ /^take:[a-z0-9]{15}$/.test($json.callback_query?.data || '') }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "69e3e9d1-8796-459b-836c-e6b142a9aa42"
+    },
+    {
+      "name": "Новая заявка",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        100
+      ],
+      "parameters": {
+        "url": "http://pocketbase:8090/api/collections/it_requests/records",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "={{ 'id = \"' + $json.id + '\" && status = \"Новая\"' }}"
+            },
+            {
+              "name": "perPage",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7bbc14ba-081d-4182-b8ac-6ecd2ee837c6"
+    },
+    {
+      "name": "Можно взять?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
         1540,
         100
       ],
-      "onError": "continueRegularOutput"
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "available",
+              "leftValue": "={{ $json.items.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2c1254b1-2fa5-488e-860e-cd811c25b7d2"
+    },
+    {
+      "name": "Уже обработана",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        300
+      ],
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Кто и что нажал').item.json.queryId }}",
+        "additionalFields": {
+          "text": "Заявка уже взята или завершена"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "id": "eabb5f95-ecc4-466c-b9a3-22c7aa909f49",
+      "webhookId": "6b7d77e2-f07d-4a93-bbf4-f97eb72fbb92"
     }
   ],
   "connections": {
@@ -248,11 +384,6 @@
       "main": [
         [
           {
-            "node": "Отметить прочитанными",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "По одному",
             "type": "main",
             "index": 0
@@ -265,7 +396,25 @@
       "main": [
         [
           {
+            "node": "Кнопка заявки?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Кнопка заявки?": {
+      "main": [
+        [
+          {
             "node": "Кто и что нажал",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Отметить прочитанными",
             "type": "main",
             "index": 0
           }
@@ -276,7 +425,36 @@
       "main": [
         [
           {
+            "node": "Новая заявка",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Новая заявка": {
+      "main": [
+        [
+          {
+            "node": "Можно взять?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Можно взять?": {
+      "main": [
+        [
+          {
             "node": "Статус в базу",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Уже обработана",
             "type": "main",
             "index": 0
           }
@@ -304,6 +482,29 @@
           }
         ]
       ]
+    },
+    "Изменить сообщение": {
+      "main": [
+        [
+          {
+            "node": "Отметить прочитанными",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Уже обработана": {
+      "main": [
+        [
+          {
+            "node": "Отметить прочитанными",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
-  }
+  },
+  "settings": null
 }

@@ -22,4 +22,4 @@ npm run dev
 
 Адреса PocketBase и вебхука можно изменить через `VITE_POCKETBASE_URL` и `VITE_N8N_WEBHOOK_URL` в локальном файле `.env.local`. По умолчанию используются `http://localhost:8090` и `http://localhost:5678/webhook/zayavka`.
 
-В задании курса также нужны журнал работы с ИИ и снимки проверки Telegram. Их нужно подготовить по фактически выполненной работе.
+Журнал подготовки находится в `ai-log.md`. Снимки Telegram прилагаются отдельно.

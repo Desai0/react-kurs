@@ -2,14 +2,14 @@ services:
   pocketbase:
     build: ./pocketbase
     ports:
-      - "8090:8090"
+      - "127.0.0.1:8090:8090"
     volumes:
       - pb_data:/pb/pb_data
 
   n8n:
     image: n8nio/n8n:2.45.4
     ports:
-      - "5678:5678"
+      - "127.0.0.1:5678:5678"
     environment:
       GENERIC_TIMEZONE: Europe/Moscow
       TZ: Europe/Moscow
@@ -22,7 +22,7 @@ services:
   ollama:
     image: ollama/ollama:0.40.12
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11434:11434"
     volumes:
       - ollama_data:/root/.ollama
 
