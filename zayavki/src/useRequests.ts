@@ -122,14 +122,16 @@ export function useRequests() {
     }
   }
 
-  async function remove(id: string) {
+  async function remove(id: string): Promise<boolean> {
     setActionError('')
     setPendingIds((current) => [...current, id])
     try {
       await requestsCollection.delete(id, { requestKey: null })
       recordChange.current({ action: 'delete', record: { id } as RequestItem })
+      return true
     } catch {
       setActionError('Не удалось удалить заявку. Попробуйте ещё раз.')
+      return false
     } finally {
       setPendingIds((current) => current.filter((itemId) => itemId !== id))
     }
