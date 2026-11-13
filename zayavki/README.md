@@ -1,32 +1,25 @@
-# React + TypeScript + Vite
+# Доска заявок ИТ-отдела
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Проект второго модуля. Заявки хранятся в PocketBase и обновляются в открытых окнах без перезагрузки. Форма и категории остались из первого модуля.
 
-Currently, two official plugins are available:
+## Запуск
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Нужны Node.js, npm и запущенный Docker Desktop.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```sh
+npm install
+docker compose up -d --build pocketbase
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Откройте адрес, который покажет Vite, обычно `http://localhost:5173`. При первом запуске создаётся коллекция `it_requests` с пятью примерами. Данные хранятся в томе Docker и остаются после перезапуска.
+
+Если база недоступна, доска покажет ошибку. После запуска базы нажмите «Повторить подключение». Для проверки сборки выполните `npm run build` и `npm run lint`.
+
+## Автоматизация
+
+Два процесса n8n определяют категорию заявки и отправляют сообщение в Telegram с кнопкой «Взять». Настройка бота, модели и процессов описана в [n8n/README.md](n8n/README.md). Без этой настройки доска сохраняет заявки, но уведомления не отправляются.
+
+Адреса PocketBase и вебхука можно изменить через `VITE_POCKETBASE_URL` и `VITE_N8N_WEBHOOK_URL` в локальном файле `.env.local`. По умолчанию используются `http://localhost:8090` и `http://localhost:5678/webhook/zayavka`.
+
+В задании курса также нужны журнал работы с ИИ и снимки проверки Telegram. Их нужно подготовить по фактически выполненной работе.

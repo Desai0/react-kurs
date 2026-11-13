@@ -7,11 +7,12 @@ type RequestCardProps = {
   category: Category
   details: string
   status: Status
+  pending: boolean
   onNext: () => void
   onRemove: () => void
 }
 
-function RequestCard({ title, room, category, details, status, onNext, onRemove }: RequestCardProps) {
+function RequestCard({ title, room, category, details, status, pending, onNext, onRemove }: RequestCardProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -27,9 +28,9 @@ function RequestCard({ title, room, category, details, status, onNext, onRemove 
           {open ? 'Скрыть' : 'Подробнее'}
         </button>
         {status === 'Готово' ? (
-          <button onClick={onRemove}>Убрать с доски</button>
+          <button disabled={pending} onClick={onRemove}>Убрать с доски</button>
         ) : (
-          <button onClick={onNext}>{status === 'Новая' ? 'Взять в работу' : 'Завершить'}</button>
+          <button disabled={pending} onClick={onNext}>{status === 'Новая' ? 'Взять в работу' : 'Завершить'}</button>
         )}
       </div>
     </article>

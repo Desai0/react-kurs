@@ -2,7 +2,7 @@ import { useState, type SubmitEvent } from 'react'
 import type { Category, NewRequest } from '../requests'
 
 type RequestFormProps = {
-  onAdd: (request: NewRequest) => void
+  onAdd: (request: NewRequest) => Promise<boolean>
 }
 
 function RequestForm({ onAdd }: RequestFormProps) {
@@ -11,14 +11,18 @@ function RequestForm({ onAdd }: RequestFormProps) {
   const [category, setCategory] = useState<Category>('Компьютер')
   const [details, setDetails] = useState('')
   const [error, setError] = useState('')
+  const [pending, setPending] = useState(false)
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     if (title.trim() === '' || room.trim() === '') {
       setError('Заполните поля «Что случилось» и «Кабинет».')
       return
     }
-    onAdd({ title: title.trim(), room: room.trim(), category, details: details.trim() })
+    setPending(true)
+    const saved = await onAdd({ title: title.trim(), room: room.trim(), category, details: details.trim() })
+    setPending(false)
+    if (!saved) return
     setTitle('')
     setRoom('')
     setCategory('Компьютер')
@@ -34,6 +38,7 @@ function RequestForm({ onAdd }: RequestFormProps) {
       <input
         id="title"
         type="text"
+        disabled={pending}
         placeholder="Например: не работает проектор"
         value={title}
         onChange={(event) => setTitle(event.target.value)}
@@ -43,6 +48,7 @@ function RequestForm({ onAdd }: RequestFormProps) {
       <input
         id="room"
         type="text"
+        disabled={pending}
         placeholder="214"
         value={room}
         onChange={(event) => setRoom(event.target.value)}
@@ -51,6 +57,7 @@ function RequestForm({ onAdd }: RequestFormProps) {
       <label htmlFor="category">Категория</label>
       <select
         id="category"
+        disabled={pending}
         value={category}
         onChange={(event) => setCategory(event.target.value as Category)}
       >
@@ -63,6 +70,7 @@ function RequestForm({ onAdd }: RequestFormProps) {
       <label htmlFor="details">Подробности</label>
       <textarea
         id="details"
+        disabled={pending}
         rows={3}
         value={details}
         onChange={(event) => setDetails(event.target.value)}
@@ -70,7 +78,7 @@ function RequestForm({ onAdd }: RequestFormProps) {
 
       {error !== '' && <p className="form__error">{error}</p>}
 
-      <button type="submit">Отправить заявку</button>
+      <button type="submit" disabled={pending}>{pending ? 'Отправляем…' : 'Отправить заявку'}</button>
     </form>
   )
 }

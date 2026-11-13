@@ -1,6 +1,6 @@
 import type { RequestItem } from './requests'
 
-const WEBHOOK_URL = 'http://localhost:5678/webhook/zayavka'
+const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/zayavka'
 
 export async function sendRequest(request: RequestItem): Promise<boolean> {
   try {
