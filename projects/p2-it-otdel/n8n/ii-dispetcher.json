@@ -1,0 +1,197 @@
+﻿{
+  "name": "РР-РґРёСЃРїРµС‚С‡РµСЂ",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "zayavka",
+        "options": {
+          "allowedOrigins": "http://localhost:5173"
+        }
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "zayavka",
+      "id": "ff28c129-d28a-4a0a-ab15-ad9872761a9d"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  model: 'qwen2.5:3b',\n  stream: false,\n  format: {\n    type: 'object',\n    properties: {\n      category: { type: 'string', enum: ['РљРѕРјРїСЊСЋС‚РµСЂ', 'РџСЂРѕРµРєС‚РѕСЂ', 'РџСЂРёРЅС‚РµСЂ', 'РРЅС‚РµСЂРЅРµС‚'] },\n      urgent: { type: 'boolean' },\n      summary: { type: 'string' }\n    },\n    required: ['category', 'urgent', 'summary']\n  },\n  messages: [\n    { role: 'system', content: 'РўС‹ РґРёСЃРїРµС‚С‡РµСЂ РРў-РѕС‚РґРµР»Р° РєРѕР»Р»РµРґР¶Р°. РџРѕ Р·Р°СЏРІРєРµ РѕРїСЂРµРґРµР»Рё РєР°С‚РµРіРѕСЂРёСЋ (РљРѕРјРїСЊСЋС‚РµСЂ, РџСЂРѕРµРєС‚РѕСЂ, РџСЂРёРЅС‚РµСЂ, РРЅС‚РµСЂРЅРµС‚), СЃСЂРѕС‡РЅРѕСЃС‚СЊ Рё РЅР°РїРёС€Рё РєСЂР°С‚РєРѕРµ РѕРїРёСЃР°РЅРёРµ РґРѕ 12 СЃР»РѕРІ. РЎСЂРѕС‡РЅРѕ, РµСЃР»Рё СЃСЂС‹РІР°РµС‚СЃСЏ Р·Р°РЅСЏС‚РёРµ РёР»Рё СЌРєР·Р°РјРµРЅ, РїСЂРѕРїР°Р» РёРЅС‚РµСЂРЅРµС‚ Сѓ С†РµР»РѕРіРѕ РєР°Р±РёРЅРµС‚Р° РёР»Рё РµСЃС‚СЊ СЂРёСЃРє РґР»СЏ Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё. РћС‚РІРµС‡Р°Р№ С‚РѕР»СЊРєРѕ JSON.' },\n    { role: 'user', content: 'Р§С‚Рѕ СЃР»СѓС‡РёР»РѕСЃСЊ: ' + $json.body.title + '\\nРљР°Р±РёРЅРµС‚: ' + $json.body.room + '\\nРљР°С‚РµРіРѕСЂРёСЏ РѕС‚ Р°РІС‚РѕСЂР°: ' + $json.body.category + '\\nРџРѕРґСЂРѕР±РЅРѕСЃС‚Рё: ' + $json.body.details }\n  ]\n} }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "name": "РњРѕРґРµР»СЊ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "2f8f4e87-a330-4cf2-aeed-0f2a029d1b3c"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "id",
+              "value": "={{ $('Webhook').item.json.body.id }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "title",
+              "value": "={{ $('Webhook').item.json.body.title }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "room",
+              "value": "={{ $('Webhook').item.json.body.room }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "category",
+              "value": "={{ JSON.parse($json.message.content).category }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "urgent",
+              "value": "={{ JSON.parse($json.message.content).urgent }}",
+              "type": "boolean"
+            },
+            {
+              "id": "a6",
+              "name": "summary",
+              "value": "={{ JSON.parse($json.message.content).summary }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "РћС‚РІРµС‚ РјРѕРґРµР»Рё",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ],
+      "id": "3194e396-0976-4e47-8fcb-220ae7a3451d"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://pocketbase:8090/api/collections/it_requests/records/{{ $json.id }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { category: $json.category } }}",
+        "options": {}
+      },
+      "name": "РљР°С‚РµРіРѕСЂРёСЏ РІ Р±Р°Р·Сѓ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "170ffe6e-1772-47a6-a5ce-2c11ed0e56c9"
+    },
+    {
+      "parameters": {
+        "chatId": "",
+        "text": "={{ $('РћС‚РІРµС‚ РјРѕРґРµР»Рё').item.json.urgent ? 'рџ”ґ РЎР РћР§РќРћ\\n' : '' }}Р—Р°СЏРІРєР°: {{ String($('РћС‚РІРµС‚ РјРѕРґРµР»Рё').item.json.title).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;') }}\nРљР°Р±РёРЅРµС‚: {{ String($('РћС‚РІРµС‚ РјРѕРґРµР»Рё').item.json.room).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;') }} В· {{ $('РћС‚РІРµС‚ РјРѕРґРµР»Рё').item.json.category }}\n{{ String($('РћС‚РІРµС‚ РјРѕРґРµР»Рё').item.json.summary).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;') }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Р’Р·СЏС‚СЊ",
+                    "additionalFields": {
+                      "callback_data": "=take:{{ $('РћС‚РІРµС‚ РјРѕРґРµР»Рё').item.json.id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "6b5656fd-0ed9-45bb-aac4-61369f578d8b",
+      "webhookId": "ccad4438-cfb1-4a94-b0be-0dd392ca16a1"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "РњРѕРґРµР»СЊ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "РњРѕРґРµР»СЊ": {
+      "main": [
+        [
+          {
+            "node": "РћС‚РІРµС‚ РјРѕРґРµР»Рё",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "РћС‚РІРµС‚ РјРѕРґРµР»Рё": {
+      "main": [
+        [
+          {
+            "node": "РљР°С‚РµРіРѕСЂРёСЏ РІ Р±Р°Р·Сѓ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "РљР°С‚РµРіРѕСЂРёСЏ РІ Р±Р°Р·Сѓ": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": null
+}
